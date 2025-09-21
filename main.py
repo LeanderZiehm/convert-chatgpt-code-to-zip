@@ -11,9 +11,12 @@ app.mount("/static", StaticFiles(directory="static"), name="static")
 templates = Jinja2Templates(directory="templates")
 
 import os
+import re
+
 def parse_markdown_to_files(md_text):
     """
     Parses markdown for headers starting with # that contain a valid filename.
+
     Valid filename:
       - Has at least one character before and after a dot (extension)
       - Can have folder paths
@@ -24,20 +27,26 @@ def parse_markdown_to_files(md_text):
     lines = md_text.splitlines()
     i = 0
 
+    def clean_filename(name: str) -> str:
+        # Remove markdown special chars (*, #, `, \) and surrounding whitespace
+        return re.sub(r'[*#`\\]', '', name).strip()
+
     while i < len(lines):
         line = lines[i].strip()
         if line.startswith("#"):
             parts = line.split()
             filename = None
+
             for part in parts:
-                part_clean = part.strip("*#")  # remove Markdown ** or # 
-                # Check for at least one character before and after dot
+                part_clean = clean_filename(part)
+
                 if "/" in part_clean or "." in part_clean:
                     if "." in part_clean:
                         before, after = part_clean.rsplit(".", 1)
                         if before and after:  # must have text on both sides
                             filename = part_clean
                             break
+
             if filename:
                 # Look for opening ```
                 i += 1
@@ -45,14 +54,18 @@ def parse_markdown_to_files(md_text):
                     i += 1
                 if i >= len(lines):
                     break
+
                 i += 1  # skip the opening ```
                 # Capture until closing ```
                 content_lines = []
                 while i < len(lines) and not lines[i].strip().startswith("```"):
                     content_lines.append(lines[i])
                     i += 1
+
                 files[filename] = "\n".join(content_lines).strip()
+
         i += 1
+
     return files
 
 
