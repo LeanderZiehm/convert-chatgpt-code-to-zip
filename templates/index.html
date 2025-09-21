@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Markdown to ZIP</title>
+    <title>ChatGPT Code to ZIP</title>
     <style>
         /* Reset some default styles */
         body, h1, p, textarea, button {
@@ -107,17 +107,104 @@
     </style>
 </head>
 <body>
-    <h1>Markdown to ZIP Converter</h1>
-    <form action="/convert" method="post">
-        <textarea name="md_text" rows="20" cols="80" placeholder="Paste your markdown with code blocks here..."></textarea>
-        <br><br>
-        <input type="checkbox"> remove comments  <br>
-        <button type="submit">Convert to ZIP</button>
-    </form>
+    <h1>ChatGPT Code to ZIP Converter</h1>
 
-    <div class="help-section">
-        <img src="/static/help.png" alt="Help Image">
-        <p>Click copy of ChatGPT code with the last copy button at the bottom and paste it here to get a zip.</p>
-    </div>
+<form id="mdForm">
+    <textarea name="md_text" rows="20" cols="80" placeholder="Paste your markdown with code blocks here..."></textarea>
+    <br><br>
+    <button type="submit">Convert to ZIP</button>
+</form>
+<div id="toast" style="
+    visibility: hidden;
+    min-width: 250px;
+    margin-left: -125px;
+    background-color: #e74c3c;
+    color: #fff;
+    text-align: center;
+    border-radius: 8px;
+    padding: 16px 40px 16px 16px; /* extra space for close button */
+    position: fixed;
+    z-index: 1;
+    left: 50%;
+    bottom: 30px;
+    font-size: 16px;
+    transition: opacity 0.5s;
+">
+    <span id="toast-message"></span>
+    <span id="toast-close" style="
+        position: absolute;
+        right: 10px;
+        top: 50%;
+        transform: translateY(-50%);
+        cursor: pointer;
+        font-weight: bold;
+    ">&times;</span>
+</div>
+
+<script>
+const form = document.getElementById("mdForm");
+const toast = document.getElementById("toast");
+
+form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const md_text = form.elements["md_text"].value;
+
+    try {
+        const response = await fetch("/convert", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ md_text })
+        });
+
+       // console.log(await response.text())
+
+        if (!response.ok) {
+            const err = await response.json();
+            showToast(err.detail || "An unknown error occurred.");
+            return;
+        }
+
+        const blob = await response.blob();
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = "files.zip";
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        window.URL.revokeObjectURL(url);
+
+    } catch (error) {
+        showToast("Failed to convert markdown.");
+    }
+});
+
+//const toast = document.getElementById('toast');
+const toastMessage = document.getElementById('toast-message');
+const toastClose = document.getElementById('toast-close');
+
+toastClose.addEventListener('click', () => {
+    toast.style.opacity = 0;
+    setTimeout(() => toast.style.visibility = "hidden", 500);
+});
+
+function showToast(message) {
+    // Hide current toast if visible
+    if (toast.style.visibility === "visible") {
+        toast.style.opacity = 0;
+        setTimeout(() => {
+            toastMessage.textContent = message;
+            toast.style.visibility = "visible";
+            toast.style.opacity = 1;
+        }, 500);
+    } else {
+        toastMessage.textContent = message;
+        toast.style.visibility = "visible";
+        toast.style.opacity = 1;
+    }
+}
+</script>
+
+
 </body>
 </html>

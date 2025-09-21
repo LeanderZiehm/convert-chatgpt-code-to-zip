@@ -1,10 +1,10 @@
-from fastapi import FastAPI, Request, Form
+from fastapi import FastAPI, Request,HTTPException
 from fastapi.responses import StreamingResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 import io
 import zipfile
-import re
+
 
 app = FastAPI()
 app.mount("/static", StaticFiles(directory="static"), name="static")
@@ -62,12 +62,19 @@ def index(request: Request):
 
 
 @app.post("/convert")
-def convert_to_zip(md_text: str = Form(...)):
-    print(md_text)
+async def convert_to_zip_json(request: Request):
+    try:
+        data = await request.json()  # parse JSON safely
+    except:
+        raise HTTPException(status_code=400, detail="Invalid request. Please submit JSON.")
+
+    md_text = data.get("md_text", "").strip()
+    if not md_text:
+        raise HTTPException(status_code=400, detail="Please provide markdown text before converting.")
+
     files = parse_markdown_to_files(md_text)
-    print(files)
     if not files:
-        return {"error": "No valid file blocks found in markdown."}
+        raise HTTPException(status_code=400, detail="No valid file blocks found in markdown.")
 
     # Create zip in memory
     zip_buffer = io.BytesIO()
