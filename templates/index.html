@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Markdown to ZIP</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <h1>Markdown to ZIP Converter</h1>
+    <form action="/convert" method="post">
+        <textarea name="md_text" rows="20" cols="80" placeholder="Paste your markdown with code blocks here..."></textarea>
+        <br><br>
+        <button type="submit">Convert to ZIP</button>
+    </form>
+    <p>Use code blocks like:<br>
+    <code>```filename.txt<br>file contents<br>```</code></p>
+</body>
+</html>
