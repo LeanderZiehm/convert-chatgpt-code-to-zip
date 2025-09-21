@@ -10,16 +10,49 @@ app = FastAPI()
 app.mount("/static", StaticFiles(directory="static"), name="static")
 templates = Jinja2Templates(directory="templates")
 
-def parse_markdown_to_files(md_text: str):
+import os
+def parse_markdown_to_files(md_text):
     """
-    Parses markdown looking for headers like:
-    ### **6. Frontend JS (`main.js`)**
-    followed by a code block.
-    Returns a dict {filename: content}
+    Parses markdown for headers starting with # that contain a valid filename.
+    Valid filename:
+      - Has at least one character before and after a dot (extension)
+      - Can have folder paths
+    Captures the code block that starts after the next ```
+    Returns dict {filepath: content}
     """
-    pattern = r"###.*?\(`([^`]+)`\).*?\n```.*?\n(.*?)```"
-    matches = re.findall(pattern, md_text, re.DOTALL)
-    files = {filename.strip(): content.strip() for filename, content in matches}
+    files = {}
+    lines = md_text.splitlines()
+    i = 0
+
+    while i < len(lines):
+        line = lines[i].strip()
+        if line.startswith("#"):
+            parts = line.split()
+            filename = None
+            for part in parts:
+                part_clean = part.strip("*#")  # remove Markdown ** or # 
+                # Check for at least one character before and after dot
+                if "/" in part_clean or "." in part_clean:
+                    if "." in part_clean:
+                        before, after = part_clean.rsplit(".", 1)
+                        if before and after:  # must have text on both sides
+                            filename = part_clean
+                            break
+            if filename:
+                # Look for opening ```
+                i += 1
+                while i < len(lines) and not lines[i].strip().startswith("```"):
+                    i += 1
+                if i >= len(lines):
+                    break
+                i += 1  # skip the opening ```
+                # Capture until closing ```
+                content_lines = []
+                while i < len(lines) and not lines[i].strip().startswith("```"):
+                    content_lines.append(lines[i])
+                    i += 1
+                files[filename] = "\n".join(content_lines).strip()
+        i += 1
     return files
 
 

@@ -3,16 +3,121 @@
 <head>
     <meta charset="UTF-8">
     <title>Markdown to ZIP</title>
-    <link rel="stylesheet" href="/static/style.css">
+    <style>
+        /* Reset some default styles */
+        body, h1, p, textarea, button {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        /* Body styling */
+        body {
+            background: #f4f6f8;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 40px 20px;
+            color: #333;
+        }
+
+        /* Heading styling */
+        h1 {
+            margin-bottom: 30px;
+            color: #2c3e50;
+            font-size: 2.2rem;
+            text-align: center;
+        }
+
+        /* Form styling */
+        form {
+            background: #fff;
+            padding: 30px 40px;
+            border-radius: 12px;
+            box-shadow: 0 6px 15px rgba(0,0,0,0.1);
+            max-width: 800px;
+            width: 100%;
+        }
+
+        /* Textarea styling */
+        textarea {
+            width: 100%;
+            padding: 15px;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 1rem;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            resize: vertical;
+            transition: border-color 0.3s;
+        }
+
+        textarea:focus {
+            border-color: #3498db;
+            outline: none;
+        }
+
+        /* Button styling */
+        button {
+            background-color: #3498db;
+            color: #fff;
+            border: none;
+            padding: 12px 25px;
+            font-size: 1rem;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.2s;
+        }
+
+        button:hover {
+            background-color: #2980b9;
+            transform: translateY(-2px);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        /* Inline code styling */
+        code {
+            background: #e8e8e8;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: 'Courier New', Courier, monospace;
+        }
+
+        /* Help image section */
+        .help-section {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .help-section img {
+            max-width: 150px; /* smaller image */
+            height: auto;
+            display: block;
+            margin: 0 auto 10px auto; /* center and add margin below */
+        }
+
+        .help-section p {
+            font-size: 1rem;
+            color: #555;
+        }
+
+    </style>
 </head>
 <body>
     <h1>Markdown to ZIP Converter</h1>
     <form action="/convert" method="post">
         <textarea name="md_text" rows="20" cols="80" placeholder="Paste your markdown with code blocks here..."></textarea>
         <br><br>
+        <input type="checkbox"> remove comments  <br>
         <button type="submit">Convert to ZIP</button>
     </form>
-    <p>Use code blocks like:<br>
-    <code>```filename.txt<br>file contents<br>```</code></p>
+
+    <div class="help-section">
+        <img src="/static/help.png" alt="Help Image">
+        <p>Click copy of ChatGPT code with the last copy button at the bottom and paste it here to get a zip.</p>
+    </div>
 </body>
 </html>
